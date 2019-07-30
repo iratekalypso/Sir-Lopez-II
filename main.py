@@ -76,6 +76,8 @@ class MyClient(discord.Client):
                 driver.save_screenshot('screenshot.png')
                 msg = "New Path of Kairos message detected: " + imgurLink
                 await channel.send(msg)
+                msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
+                await channel.send(msg)
             # else:
                 # msg = "For debugging only"
                 # await channel.send(msg)
