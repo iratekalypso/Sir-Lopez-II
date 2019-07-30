@@ -25,7 +25,7 @@ imgur_refresh_token = token_json['IMGUR_REFRESH_TOKEN']
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--no-sandbox')
-driver = webdriver.Chrome(executable_path='C:\\Users\\bston\\chromium\\chromedriver.exe', chrome_options=options)
+driver = webdriver.Chrome(chrome_options=options)
 
 imgClient = ImgurClient(imgur_client_id, imgur_client_secret, imgur_access_token, imgur_refresh_token)
 album = 'b6ZIp1m'
@@ -110,7 +110,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('screenshot4.png')
                 msg = "New Snekbait message detected: " + imgurLink
                 await channel.send(msg)
-                msg = "<@154075109391335425> + <@126011690419617792> + <@332245843983990786>"
+                msg = "<@165688608190103552>"
                 await channel.send(msg)
             # else:
                 # msg = "For debugging only"
