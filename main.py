@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import asyncio
 import aiohttp
 from discord import Game
@@ -110,7 +112,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('screenshot4.png')
                 msg = "New Snekbait message detected: " + imgurLink
                 await channel.send(msg)
-                msg = "<@165688608190103552>"
+                msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
                 await channel.send(msg)
             # else:
                 # msg = "For debugging only"
