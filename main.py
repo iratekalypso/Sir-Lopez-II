@@ -58,7 +58,7 @@ class MyClient(discord.Client):
         while not self.is_closed():
             screenshot_url3 = "https://www.reddit.com/r/narratorbait/"
             driver.get(screenshot_url3)
-            driver.save_screenshot('screenshot5.png')
+            driver.save_screenshot('screenshot6.png')
             # driver.close()
             im1 = Image.open('screenshot5.png')
             im2 = Image.open('screenshot6.png')
