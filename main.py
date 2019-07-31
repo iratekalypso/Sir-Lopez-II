@@ -58,7 +58,7 @@ class MyClient(discord.Client):
         while not self.is_closed():
             screenshot_url3 = "https://www.reddit.com/r/narratorbait/"
             driver.get(screenshot_url3)
-            driver.save_screenshot('screenshot6.png')
+            driver.save_screenshot('screenshot5.png')
             # driver.close()
             im1 = Image.open('screenshot5.png')
             im2 = Image.open('screenshot6.png')
@@ -72,7 +72,7 @@ class MyClient(discord.Client):
                 image_is_different = False
             if image_is_different:
                 # msg = "Check snekbait"
-                imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+                imgurImage = imgClient.upload_from_path('screenshot6.png', config=uploadConfig, anon=False)
                 imgurLink = str(imgurImage['link'])
                 driver.save_screenshot('screenshot5.png')
                 msg = "New Narrator Bait message detected: " + imgurLink
