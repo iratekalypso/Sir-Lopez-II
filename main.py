@@ -46,45 +46,10 @@ class MyClient(discord.Client):
         # create the background task and run it in the background
         self.bg_task = self.loop.create_task(self.check_snekbait())
         self.bg_task = self.loop.create_task(self.check_kairos())
-        self.bg_task = self.loop.create_task(self.check_narratorbait())
 
     async def on_ready(self):
         print("Ready to record!")
     
-    async def check_narratorbait(self):
-        await self.wait_until_ready()
-        channel_id = 295647103361744898
-        channel = self.get_channel(channel_id)
-        while not self.is_closed():
-            screenshot_url3 = "https://www.reddit.com/r/narratorbait/"
-            driver.get(screenshot_url3)
-            driver.save_screenshot('screenshot6.png')
-            # driver.close()
-            im1 = Image.open('screenshot5.png')
-            im2 = Image.open('screenshot6.png')
-            h1 = im1.histogram()
-            h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            if rms > 11:
-                image_is_different = True
-            else:
-                image_is_different = False
-            if image_is_different:
-                # msg = "Check snekbait"
-                imgurImage = imgClient.upload_from_path('screenshot6.png', config=uploadConfig, anon=False)
-                imgurLink = str(imgurImage['link'])
-                driver.save_screenshot('screenshot5.png')
-                msg = "New Narrator Bait message detected: " + imgurLink
-                await channel.send(msg)
-                msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-                await channel.send(msg)
-            # else:
-                # msg = "For debugging only"
-                # await channel.send(msg)
-
-            await asyncio.sleep(60)
-
     async def check_kairos(self):
         await self.wait_until_ready()
         channel_id = 295647103361744898
