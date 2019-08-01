@@ -65,6 +65,7 @@ class MyClient(discord.Client):
             h2 = im2.histogram()
             rms = math.sqrt(reduce(operator.add,
                                    map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
+            print(rms)
             if rms > 11:
                 image_is_different = True
             else:
