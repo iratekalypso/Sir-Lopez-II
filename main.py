@@ -126,17 +126,18 @@ class MyClient(discord.Client):
     async def on_disconnect(self):
         driver.close()
 
-    # async def on_message(self, message):
-    #     if message.author == client.user:
-    #         return
-    #     if 'update' in message.content:
-    #         grab_site_screenshot("https://www.reddit.com/r/snekbait")
-    #         if compare_images('screenshot3.png', 'screenshot4.png'):
-    #             msg = "She different".format(message)
-    #         else:
-    #             msg = "She not".format(message)
-    #         await message.channel.send(msg)
-    #     # Insert your code here
+    async def on_message(self, message):
+        if message.author == client.user:
+            return
+        if '?update' in message.content:
+            screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
+            driver.get(screenshot_url2)
+            driver.save_screenshot('screenshot.png')
+            imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+            imgurLink = str(imgurImage['link'])
+            msg = "Path of Kairos reset to: " + imgurLink
+            await message.channel.send(msg)
+        # Insert your code here
 
 
 client = MyClient()
