@@ -44,7 +44,7 @@ class MyClient(discord.Client):
         super().__init__(*args, **kwargs)
 
         # create the background task and run it in the background
-        self.bg_task = self.loop.create_task(self.check_snekbait())
+        # self.bg_task = self.loop.create_task(self.check_snekbait())
         self.bg_task = self.loop.create_task(self.check_kairos())
 
     async def on_ready(self):
