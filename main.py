@@ -94,7 +94,7 @@ class MyClient(discord.Client):
                 imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
                 imgurLink = str(imgurImage['link'])
                 driver.save_screenshot('screenshot.png')
-                msg = "New Path of Kairos message detected (note, I'm in debugging mode. Pls ignore if this is wrong. Yew will fix in the morning): " + imgurLink
+                msg = "New Path of Kairos message detected:" + imgurLink
                 await channel.send(msg)
                 # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
                 # await channel.send(msg)
