@@ -52,7 +52,7 @@ class MyClient(discord.Client):
     
     async def check_kairos(self):
         await self.wait_until_ready()
-        channel_id = 295647103361744898
+        channel_id = 588704610391293961
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
@@ -66,7 +66,7 @@ class MyClient(discord.Client):
             rms = math.sqrt(reduce(operator.add,
                                    map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
             print(rms)
-            if rms > 11:
+            if rms > 0.5:
                 image_is_different = True
             else:
                 image_is_different = False
@@ -75,10 +75,10 @@ class MyClient(discord.Client):
                 imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
                 imgurLink = str(imgurImage['link'])
                 driver.save_screenshot('screenshot.png')
-                msg = "New Path of Kairos message detected: " + imgurLink
+                msg = "New Path of Kairos message detected (note, I'm in debugging mode. Pls ignore if this is wrong. Yew will fix in the morning): " + imgurLink
                 await channel.send(msg)
-                msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-                await channel.send(msg)
+                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
+                # await channel.send(msg)
             # else:
                 # msg = "For debugging only"
                 # await channel.send(msg)
