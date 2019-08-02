@@ -60,21 +60,21 @@ class MyClient(discord.Client):
                 driver.get(screenshot_url2)
                 driver.save_screenshot('screenshot2.png')
             except:
-                driver.close()
                 print("Driver restarting")
-                driver = webdriver.Chrome(chrome_options=options)
+                driver.close()
+                driver2 = webdriver.Chrome(chrome_options=options)
                 try:
-                    driver.get(screenshot_url2)
-                    driver.save_screenshot('screenshot2.png')
+                    driver2.get(screenshot_url2)
+                    driver2.save_screenshot('screenshot2.png')
                 except:
                     print("I couldn't get her up captain")
                     channel_id = 430842971898773504
                     user_id = 165688608190103552
                     channel = self.get_channel(channel_id)
-                    message = "<@"+user_id+"> fix your bot you fricking frick. WHEN WILL YOU LEARN THAT YOUR ACTIONS HAVE CONSEQUENCES!!!!!!"
+                    message = "<@"+str(user_id)+"> fix your bot you fricking frick. WHEN WILL YOU LEARN THAT YOUR ACTIONS HAVE CONSEQUENCES!!!!!!"
                     await channel.send(message)
                     break
-                    
+                 print("driver restarted")   
                 
                 
             # driver.close()
