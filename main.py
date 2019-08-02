@@ -74,8 +74,7 @@ class MyClient(discord.Client):
                     message = "<@"+str(user_id)+"> fix your bot you fricking frick. WHEN WILL YOU LEARN THAT YOUR ACTIONS HAVE CONSEQUENCES!!!!!!"
                     await channel.send(message)
                     break
-                 print("driver restarted")   
-                
+                print("driver restarted")                
                 
             # driver.close()
             im1 = Image.open('screenshot2.png')
