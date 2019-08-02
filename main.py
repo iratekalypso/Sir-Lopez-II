@@ -56,8 +56,27 @@ class MyClient(discord.Client):
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
-            driver.get(screenshot_url2)
-            driver.save_screenshot('screenshot2.png')
+            try:
+                driver.get(screenshot_url2)
+                driver.save_screenshot('screenshot2.png')
+            except:
+                driver.close()
+                print("Driver restarting")
+                driver = webdriver.Chrome(chrome_options=options)
+                try:
+                    driver.get(screenshot_url2)
+                    driver.save_screenshot('screenshot2.png')
+                except:
+                    print("I couldn't get her up captain")
+                    channel_id = 430842971898773504
+                    user_id = 165688608190103552
+                    channel = self.get_channel(channel_id)
+                    message = "<@"+user_id+"> fix your bot you fricking frick. WHEN WILL YOU LEARN THAT YOUR ACTIONS HAVE CONSEQUENCES!!!!!!"
+                    await channel.send(message)
+                    break
+                    
+                
+                
             # driver.close()
             im1 = Image.open('screenshot2.png')
             im2 = Image.open('screenshot.png')
