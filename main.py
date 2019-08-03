@@ -93,7 +93,7 @@ class MyClient(discord.Client):
     async def check_inbox(self):
         await self.wait_until_ready()
         msg_count = 0
-        channel_id = 585303573613510680
+        channel_id = 588704610391293961
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             msg = ""
@@ -115,7 +115,7 @@ class MyClient(discord.Client):
 
     async def check_kairos(self):
         await self.wait_until_ready()
-        channel_id = 476120967580745729
+        channel_id = 588704610391293961
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
