@@ -69,7 +69,7 @@ class MyClient(discord.Client):
 
     async def on_ready(self):
         print("Ready to record!")
-        channel_id = 476120967580745729
+        channel_id = 585303573613510680
         channel = self.get_channel(channel_id)
         message = "Is it getting hot in here? Or is that just Gryph :wink:"
         await channel.send(message)
