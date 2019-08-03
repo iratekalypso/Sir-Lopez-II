@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+# ! /usr/bin/env python3
 
 import asyncio
 import aiohttp
@@ -14,6 +14,19 @@ import discord
 from imgurpython import *
 import datetime
 import json
+
+import os
+import sys
+import atexit
+
+pid = str(os.getpid())
+pidfile = "/tmp/mydaemon.pid"
+
+if os.path.isfile(pidfile):
+    print("%s already exists, exiting" % pidfile)
+    sys.exit()
+open(pidfile, 'w').write(pid)
+
 BOT_PREFIX = ("?", "!")
 client = Bot(command_prefix=BOT_PREFIX)
 with open('tokens.json') as f:
@@ -39,124 +52,91 @@ uploadConfig = {
 }
 
 
-class MyClient(discord.Client):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+def pidclose():
+    os.unlink(pidfile)
 
-        # create the background task and run it in the background
-        # self.bg_task = self.loop.create_task(self.check_snekbait())
-        self.bg_task = self.loop.create_task(self.check_kairos())
 
-    async def on_ready(self):
-        print("Ready to record!")
-    
-    async def check_kairos(self):
-        await self.wait_until_ready()
-        channel_id = 588704610391293961
-        channel = self.get_channel(channel_id)
-        while not self.is_closed():
-            screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
-            try:
-                driver.get(screenshot_url2)
-                driver.save_screenshot('screenshot2.png')
-            except:
-                print("Driver restarting")
-                # driver.close()
-                driver2 = webdriver.Chrome(chrome_options=options)
+atexit.register(pidclose)
+try:
+
+    class MyClient(discord.Client):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            # create the background task and run it in the background
+            # self.bg_task = self.loop.create_task(self.check_snekbait())
+            self.bg_task = self.loop.create_task(self.check_kairos())
+
+        async def on_ready(self):
+            print("Ready to record!")
+            channel_id = 476120967580745729
+            channel = self.get_channel(channel_id)
+            message = "Is it getting hot in here? Or is that just Gryph :wink:"
+            await channel.send(message)
+
+        async def check_kairos(self):
+            await self.wait_until_ready()
+            channel_id = 588704610391293961
+            channel = self.get_channel(channel_id)
+            while not self.is_closed():
+                screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
                 try:
-                    driver2.get(screenshot_url2)
-                    driver2.save_screenshot('screenshot2.png')
+                    driver.get(screenshot_url2)
+                    driver.save_screenshot('screenshot2.png')
                 except:
-                    print("I couldn't get her up captain")
-                    channel_id = 430842971898773504
-                    user_id = 165688608190103552
-                    channel = self.get_channel(channel_id)
-                    message = "<@"+str(user_id)+"> fix your bot you fricking frick. WHEN WILL YOU LEARN THAT YOUR ACTIONS HAVE CONSEQUENCES!!!!!!"
-                    await channel.send(message)
-                    break
-                print("driver restarted")                
-                
-            # driver.close()
-            im1 = Image.open('screenshot2.png')
-            im2 = Image.open('screenshot.png')
-            h1 = im1.histogram()
-            h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            print(rms)
-            if rms > 0.5:
-                image_is_different = True
-            else:
-                image_is_different = False
-            if image_is_different:
-                # msg = "Check snekbait"
+                    print("Owo what's this?")
+                    exit(-1)
+
+                    # driver.close()
+                im1 = Image.open('screenshot2.png')
+                im2 = Image.open('screenshot.png')
+                h1 = im1.histogram()
+                h2 = im2.histogram()
+                rms = math.sqrt(reduce(operator.add,
+                                       map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
+                print(rms)
+                if rms > 0.5:
+                    image_is_different = True
+                else:
+                    image_is_different = False
+                if image_is_different:
+                    # msg = "Check snekbait"
+                    imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+                    imgur_link = str(imgur_image['link'])
+                    driver.save_screenshot('screenshot.png')
+                    msg = "New Path of Kairos message detected:" + imgur_link
+                    await channel.send(msg)
+                    # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
+                    # await channel.send(msg)
+                # else:
+                # msg = "For debugging only"
+                # await channel.send(msg)
+
+                await asyncio.sleep(60)
+
+
+
+        async def on_disconnect(self):
+            driver.close()
+
+        async def on_message(self, message):
+            if message.author == client.user:
+                return
+            if '?update' in message.content:
+                screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
+                driver.get(screenshot_url2)
+                driver.save_screenshot('screenshot.png')
                 imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
                 imgurLink = str(imgurImage['link'])
-                driver.save_screenshot('screenshot.png')
-                msg = "New Path of Kairos message detected:" + imgurLink
-                await channel.send(msg)
-                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-                # await channel.send(msg)
-            # else:
-                # msg = "For debugging only"
-                # await channel.send(msg)
-
-            await asyncio.sleep(60)
-
-    async def check_snekbait(self):
-        await self.wait_until_ready()
-        channel_id = 295647103361744898
-        channel = self.get_channel(channel_id)
-        while not self.is_closed():
-            screenshot_url = "https://www.reddit.com/r/snekbait"
-            try:
-                driver.get(screenshot_url)
-
-                driver.save_screenshot('screenshot3.png')
-            except:
-                print(datetime.datetime)
-            # driver.close()
-            im1 = Image.open('screenshot3.png')
-            im2 = Image.open('screenshot4.png')
-            h1 = im1.histogram()
-            h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            if rms > 11:
-                image_is_different = True
-            else:
-                image_is_different = False
-            if image_is_different:
-                # msg = "Check snekbait"
-                imgurImage = imgClient.upload_from_path('screenshot3.png', config=uploadConfig, anon=False)
-                imgurLink = str(imgurImage['link'])
-                driver.save_screenshot('screenshot4.png')
-                msg = "New Snekbait message detected: " + imgurLink
-                await channel.send(msg)
-                msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-                await channel.send(msg)
-            # else:
-                # msg = "For debugging only"
-                # await channel.send(msg)
-
-            await asyncio.sleep(60)
-
-    async def on_disconnect(self):
-        driver.close()
-
-    async def on_message(self, message):
-        if message.author == client.user:
-            return
-        if '?update' in message.content:
-            screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
-            driver.get(screenshot_url2)
-            driver.save_screenshot('screenshot.png')
-            imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
-            imgurLink = str(imgurImage['link'])
-            msg = "Path of Kairos reset to: " + imgurLink
-            await message.channel.send(msg)
-        # Insert your code here
+                msg = "Path of Kairos reset to: " + imgurLink
+                await message.channel.send(msg)
+            # Insert your code here
 
 
-client = MyClient()
-client.run(discord_token)
+    client = MyClient()
+    client.run(discord_token)
+
+finally:
+    os.unlink(pidfile)
+
+
