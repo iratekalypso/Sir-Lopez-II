@@ -61,7 +61,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('screenshot2.png')
             except:
                 print("Driver restarting")
-                driver.close()
+                # driver.close()
                 driver2 = webdriver.Chrome(chrome_options=options)
                 try:
                     driver2.get(screenshot_url2)
