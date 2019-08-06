@@ -9,17 +9,18 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from PIL import Image
 from functools import reduce
-import math, operator
-import uuid
+import math
+import operator
 import discord
 from imgurpython import *
-import datetime
 import json
 import os
 import sys
 import atexit
 import praw
 from praw.models import Message
+import requests
+
 pid = str(os.getpid())
 pidfile = "/tmp/mydaemon.pid"
 
@@ -93,7 +94,7 @@ class MyClient(discord.Client):
     async def check_inbox(self):
         await self.wait_until_ready()
         msg_count = 0
-        channel_id = 585303573613510680
+        channel_id = 476120967580745729
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             msg = ""
@@ -159,31 +160,40 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         if message.author == client.user:
             return
-        if '?update' in message.content:
+        if '?update' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?update':
+                return
             screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
             driver.get(screenshot_url2)
             driver.save_screenshot('screenshot.png')
-            imgurImage = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
-            imgurLink = str(imgurImage['link'])
-            msg = "Path of Kairos reset to: " + imgurLink
+            imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+            imgur_link = str(imgur_image['link'])
+            msg = "Path of Kairos reset to: " + imgur_link
             await message.channel.send(msg)
         # ModMsg Mostly provided by Satan#0001
-        if '?modmsg' in message.content.lower():
-            if message.content.strip().lower() != '?modmsg':
-                solution = " ".join(message.content.split()[1:])
+        elif '?modmsg' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?modmsg':
+                return
+            if len(split_message) > 1:
+                solution = " ".join(split_message[1:])
                 if "spam" in solution.lower():
                     await message.channel.send("The word 'spam' is blocked due to "
                                                "Reddit's auto help system picking it up. Sorry :(")
                 else:
                     try:
-                        reddit.subreddit('thepathofkairos').message(solution, solution)
+                        reddit.subreddit('ghostisedoesnotsuck').message(solution, solution)
                         await message.channel.send("Solution sent!")
                     except:
                         await message.channel.send("Owo looks like yew made a fucky wucky. A weal FUCKO BOINGO")
             else:
                 await message.channel.send("No message provided, I'm not sending blank lines....")
 
-        if '?inbox' in message.content.lower():
+        elif '?inbox' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?inbox':
+                return
             msg_count = 0
             for item in reddit.inbox.unread(limit=None):
                 if isinstance(item, Message):
@@ -198,6 +208,36 @@ class MyClient(discord.Client):
             if msg_count == 0:
                 msg = "Sorry, inbox is empty..."
                 await message.channel.send(msg)
+        # Overly complex function that uses regular requests for speed but defaults to asyncio requests when that fails
+        elif '?tiny' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?tiny':
+                return
+            if len(split_message) > 2:
+                msg = "I'm sorry but it looks like you sent too much. Please use ``?link linkGuess``"
+            else:
+                try:
+                    tiny_url = requests.head("https://tinyurl.com/"+str(split_message[1]))
+                    if tiny_url.ok:
+                        msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
+                    else:
+                        msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
+                                                                         "something for everybody"
+                except:
+                    try:
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get("https://tinyurl.com/"+str(split_message[1])) as tiny_url:
+                                if tiny_url.real_url:
+                                    msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
+                                else:
+                                    msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
+                                                                              "something for everybody"
+                    except:
+                        msg = "Grabbing the url didn't work? Try again and/or ping Yew"
+            await message.channel.send(msg)
+        elif "?reboot" == message.content.lower() and message.author.id == 165688608190103552:
+            exit(-1)
+
 
 client = MyClient()
 client.run(discord_token)
