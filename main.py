@@ -20,6 +20,7 @@ import atexit
 import praw
 from praw.models import Message
 import requests
+import time
 
 pid = str(os.getpid())
 pidfile = "/tmp/mydaemon.pid"
@@ -235,8 +236,24 @@ class MyClient(discord.Client):
                     except:
                         msg = "Grabbing the url didn't work? Try again and/or ping Yew"
             await message.channel.send(msg)
-        elif "?reboot" == message.content.lower() and message.author.id == 165688608190103552:
+        elif "?reboot" == message.content.lower() and \
+                (message.author.id == 165688608190103552 or message.channel.id == 430464509006577668):
             exit(-1)
+        elif "?sleep" in message.content.lower() and \
+                (message.author.id == 165688608190103552 or message.channel.id == 430464509006577668):
+            split_content = message.content.split()
+            if len(split_content) != 2:
+                return
+            else:
+                try:
+                    time_to_sleep_in_min = int(split_content[1])
+                    msg = "Going to sleep for " + split_content[1] + " minutes... See you later alligators"
+                    await message.channel.send(msg)
+                    time.sleep(time_to_sleep_in_min*60)
+                    msg = "I'm back y'all"
+                    message.channel.send(msg)
+                except:
+                    return
 
 
 client = MyClient()
