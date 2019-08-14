@@ -236,6 +236,32 @@ class MyClient(discord.Client):
                     except:
                         msg = "Grabbing the url didn't work? Try again and/or ping Yew"
             await message.channel.send(msg)
+        elif "?help" == message.content.lower():
+            msg = "Help for Sir Lopez 2 The Electric Boogaloo\n" \
+                  "Sir Lopez's Automatic features:\n" \
+                  "Inbox:\n" \
+                  "\tMonitors the bot's inbox and sends the messages it receives\n" \
+                  "Path of Kairos:\n" \
+                  "\tMonitors the Path of Kairos and screenshots it upon the subreddit changing or the bot failing\n" \
+                  "====================================\n" \
+                  "Sir Lopez's Manual Features (~~$69~~ FREE Premium DLC)\n" \
+                  "``?update``: \n" \
+                  "\tManually checks Path of Kairos and resets the ref. image to what it takes a picture of then\n" \
+                  "``?inbox``:\n" \
+                  "\tChecks the inbox and reports any unread messages.\n" \
+                  "``modmsg <Message to send to mods>``:\n" \
+                  "\tSends the mods of Path of Kairos the message you specify.\n" \
+                  "``?tiny <URLPART>``:\n" \
+                  "\tChecks https://tinyurl.com/URLPART and sees if it is a valid link or not.\n" \
+                  "====================================\n" \
+                  "Sir Lopez's Restricted functions: Won't work for anyone who can't handle the neutron style:\n" \
+                  "``?reboot``:\n" \
+                  "\tReboots Sir Lopez, great for when he's acting rudely.\n" \
+                  "``?sleep <XX>``:\n:" \
+                  "\tPuts Sir Lopez into an absolute slumber for XX minutes (CANNOT BE WOKEN UP AT ALL). " \
+                  "You can't kill a god, but you may make him slumber...\n"
+            channel = message.author.dm_channel
+            await channel.send(msg)
         elif "?reboot" == message.content.lower() and \
                 (message.author.id == 165688608190103552 or message.channel.id == 430464509006577668):
             exit(-1)
