@@ -121,7 +121,7 @@ class MyClient(discord.Client):
         channel_id = 588704610391293961
         channel = self.get_channel(channel_id)
         while not self.is_closed():
-            screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
+            screenshot_url2 = "https://old.reddit.com/r/ThePathOfKairos"
             try:
                 driver.get(screenshot_url2)
                 driver.save_screenshot('screenshot2.png')
@@ -161,9 +161,9 @@ class MyClient(discord.Client):
         channel_id = 585303573613510680
         channel = self.get_channel(channel_id)
         while not self.is_closed():
-            screenshot_url2 = "https://www.reddit.com/r/layer"
+            screenshot_url3 = "https://old.reddit.com/r/layer"
             try:
-                driver.get(screenshot_url2)
+                driver.get(screenshot_url3)
                 driver.save_screenshot('screenshot3.png')
             except:
                 print("Owo what's this?")
@@ -183,7 +183,7 @@ class MyClient(discord.Client):
                 image_is_different = False
             if image_is_different:
                 # msg = "Check snekbait"
-                imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+                imgur_image = imgClient.upload_from_path('screenshot3.png', config=uploadConfig, anon=False)
                 imgur_link = str(imgur_image['link'])
                 driver.save_screenshot('screenshot4.png')
                 msg = "OwO new Layer message detected: " + imgur_link
