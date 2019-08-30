@@ -155,6 +155,45 @@ class MyClient(discord.Client):
 
             await asyncio.sleep(60)
 
+    async def check_layer(self):
+        await self.wait_until_ready()
+        channel_id = 585303573613510680
+        channel = self.get_channel(channel_id)
+        while not self.is_closed():
+            screenshot_url2 = "https://www.reddit.com/r/layer"
+            try:
+                driver.get(screenshot_url2)
+                driver.save_screenshot('screenshot3.png')
+            except:
+                print("Owo what's this?")
+                exit(-1)
+
+                # driver.close()
+            im1 = Image.open('screenshot3.png')
+            im2 = Image.open('screenshot4.png')
+            h1 = im1.histogram()
+            h2 = im2.histogram()
+            rms = math.sqrt(reduce(operator.add,
+                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
+            print(rms)
+            if rms > 0.5:
+                image_is_different = True
+            else:
+                image_is_different = False
+            if image_is_different:
+                # msg = "Check snekbait"
+                imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+                imgur_link = str(imgur_image['link'])
+                driver.save_screenshot('screenshot4.png')
+                msg = "OwO new Layer message detected: " + imgur_link
+                await channel.send(msg)
+                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
+                # await channel.send(msg)
+            # else:
+            # msg = "For debugging only"
+            # await channel.send(msg)
+
+            await asyncio.sleep(60)
     # async def on_disconnect(self):
     #     driver.close()
 
