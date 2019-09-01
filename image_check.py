@@ -3,11 +3,16 @@ from selenium.webdriver.chrome.options import Options
 import time
 import os
 import atexit
+import sys
 
 list_of_subs = ["ThePathOfKairos", "Layer", "Layers", "Layer_layers", "Page_pages", "seed_seeds", "digit_digits"]
 
 pid = str(os.getpid())
 pidfile = "/tmp/imagedaemon.pid"
+if os.path.isfile(pidfile):
+    print("%s already exists, exiting" % pidfile)
+    sys.exit()
+open(pidfile, 'w').write(pid)
 
 options = Options()
 options.add_argument('--headless')
