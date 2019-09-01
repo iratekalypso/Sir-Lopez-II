@@ -141,7 +141,7 @@ class MyClient(discord.Client):
     async def check_inbox(self):
         await self.wait_until_ready()
         msg_count = 0
-        channel_id = 476120967580745729
+        channel_id = 588704610391293961
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             msg = ""
@@ -163,7 +163,7 @@ class MyClient(discord.Client):
 
     async def check_subs(self):
         await self.wait_until_ready()
-        channel_id = 476120967580745729
+        channel_id = 588704610391293961
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             t0 = time.time()
@@ -187,7 +187,7 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         if message.author == client.user:
             return
-
+        # TODO: Command system is gross. Use Discord's or make this cleaner.
         if '?update' in message.content.lower():
             split_message = message.content.split()
             if split_message[0].lower() != '?update' or not self.knight_auth(message.author.id):
@@ -214,7 +214,6 @@ class MyClient(discord.Client):
                                                "Reddit's auto help system picking it up. Sorry :(")
                 else:
                     try:
-                        # TODO: Change the sub back to the og one
                         reddit.subreddit('ThePathOfKairos').message(solution, solution)
                         await message.channel.send("Solution sent!")
                     except:
