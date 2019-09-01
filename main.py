@@ -49,7 +49,7 @@ reddit_username = token_json['REDDIT_USERNAME']
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--no-sandbox')
-driver = webdriver.Chrome(chrome_options=options)
+driver = webdriver.Chrome(options=options)
 
 imgClient = ImgurClient(imgur_client_id, imgur_client_secret, imgur_access_token, imgur_refresh_token)
 album = 'b6ZIp1m'
@@ -75,7 +75,7 @@ atexit.register(pidclose)
 
 
 class MyClient(discord.Client):
-    driver = webdriver.Chrome(chrome_options=options)
+    driver = webdriver.Chrome(options=options)
     list_of_subs = ["ThePathOfKairos", "Layer", "Layers", "Layer_layers", "Page_pages", "seed_seeds", "digit_digits"]
     list_of_good_boys = ""
     list_of_bad_boys = ""
@@ -101,6 +101,12 @@ class MyClient(discord.Client):
         else:
             image_is_different = False
         return image_is_different
+
+    def knight_auth(self, user_id):
+        if str(user_id) in self.list_of_big_boys or str(user_id) in self.list_of_good_boys:
+            return True
+        else:
+            return False
 
     async def knight_auth_init(self):
         guild = self.get_guild(295643919553921035)
@@ -181,140 +187,133 @@ class MyClient(discord.Client):
     async def on_message(self, message):
         if message.author == client.user:
             return
-        if str(message.author.id) in self.list_of_bad_boys:
-            msg = "https://gph.is/2l3ekKZ"
-            await message.channel.send(msg)
-            return
-        elif str(message.author.id) not in self.list_of_good_boys:
-            msg = "Sorry, looks like you're missing a Knight role or two. Ping an officer for any questions..."
-            await message.channel.send(msg)
-            return
-        else:
-            # TODO: Fix this function
-            if '?update' in message.content.lower():
-                split_message = message.content.split()
-                if split_message[0].lower() != '?update':
-                    return
-                screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
-                driver.get(screenshot_url2)
-                driver.save_screenshot('screenshot.png')
-                imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
-                imgur_link = str(imgur_image['link'])
-                msg = "Path of Kairos reset to: " + imgur_link
-                await message.channel.send(msg)
 
-            # ModMsg Mostly provided by Satan#0001
-            elif '?modmsg' in message.content.lower():
-                split_message = message.content.split()
-                if split_message[0].lower() != '?modmsg':
-                    return
-                if len(split_message) > 1:
-                    solution = " ".join(split_message[1:])
-                    if "spam" in solution.lower():
-                        await message.channel.send("The word 'spam' is blocked due to "
-                                                   "Reddit's auto help system picking it up. Sorry :(")
+        if '?update' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?update' or not self.knight_auth(message.author.id):
+                return
+            self.knight_auth(message.author)
+            screenshot_url2 = "https://old.reddit.com/r/ThePathOfKairos"
+            driver.get(screenshot_url2)
+            driver.save_screenshot('ThePathOfKairos.png')
+            shutil.copyfile('ThePathOfKairos.png', 'ThePathOfKairos2.png')
+            imgur_image = imgClient.upload_from_path('ThePathOfKairos.png', config=uploadConfig, anon=False)
+            imgur_link = str(imgur_image['link'])
+            msg = "Path of Kairos reset to: " + imgur_link
+            await message.channel.send(msg)
+
+        # ModMsg Mostly provided by Satan#0001
+        elif '?modmsg' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?modmsg' or not self.knight_auth(message.author.id):
+                return
+            if len(split_message) > 1:
+                solution = " ".join(split_message[1:])
+                if "spam" in solution.lower():
+                    await message.channel.send("The word 'spam' is blocked due to "
+                                               "Reddit's auto help system picking it up. Sorry :(")
+                else:
+                    try:
+                        # TODO: Change the sub back to the og one
+                        reddit.subreddit('ThePathOfKairos').message(solution, solution)
+                        await message.channel.send("Solution sent!")
+                    except:
+                        await message.channel.send("Owo looks like yew made a fucky wucky. A weal FUCKO BOINGO")
+            else:
+                await message.channel.send("No message provided, I'm not sending blank lines....")
+
+        elif '?inbox' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?inbox' or not self.knight_auth(message.author.id):
+                return
+            msg_count = 0
+            for item in reddit.inbox.unread(limit=None):
+                if isinstance(item, Message):
+                    if str(item.author) == 'None':
+                        author_print = 'Sub mods'
                     else:
-                        try:
-                            # TODO: Change the sub back to the og one
-                            reddit.subreddit('ghostisedoesnotsuck').message(solution, solution)
-                            await message.channel.send("Solution sent!")
-                        except:
-                            await message.channel.send("Owo looks like yew made a fucky wucky. A weal FUCKO BOINGO")
-                else:
-                    await message.channel.send("No message provided, I'm not sending blank lines....")
-
-            elif '?inbox' in message.content.lower():
-                split_message = message.content.split()
-                if split_message[0].lower() != '?inbox':
-                    return
-                msg_count = 0
-                for item in reddit.inbox.unread(limit=None):
-                    if isinstance(item, Message):
-                        if str(item.author) == 'None':
-                            author_print = 'Sub mods'
-                        else:
-                            author_print = str(item.author)
-                        msg = ("From: " + author_print + "\nMessage: " + str(item.body) + "\n")
-                        msg_count += 1
-                        await message.channel.send(msg)
-                        item.mark_read()
-                if msg_count == 0:
-                    msg = "Sorry, inbox is empty..."
+                        author_print = str(item.author)
+                    msg = ("From: " + author_print + "\nMessage: " + str(item.body) + "\n")
+                    msg_count += 1
                     await message.channel.send(msg)
-            # Overly complex function that uses regular requests for speed but defaults to asyncio requests after
-            elif '?tiny' in message.content.lower():
-                split_message = message.content.split()
-                if split_message[0].lower() != '?tiny':
-                    return
-                if len(split_message) > 2:
-                    msg = "I'm sorry but it looks like you sent too much. Please use ``?link linkGuess``"
-                else:
-                    try:
-                        tiny_url = requests.head("https://tinyurl.com/" + str(split_message[1]))
-                        if tiny_url.ok:
-                            msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
-                        else:
-                            msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
-                                                                             "something for everybody"
-                    except:
-                        try:
-                            async with aiohttp.ClientSession() as session:
-                                async with session.get("https://tinyurl.com/" + str(split_message[1])) as tiny_url:
-                                    if tiny_url.real_url:
-                                        msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
-                                    else:
-                                        msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
-                                                                                         "something for everybody"
-                        except:
-                            msg = "Grabbing the url didn't work? Try again and/or ping Yew"
+                    item.mark_read()
+            if msg_count == 0:
+                msg = "Sorry, inbox is empty..."
                 await message.channel.send(msg)
-            elif "?help" == message.content.lower():
-                msg = "Help for Sir Lopez 2 The Electric Boogaloo\n" \
-                      "Sir Lopez's Automatic features:\n" \
-                      "Inbox:\n" \
-                      "\tMonitors the bot's inbox and sends the messages it receives\n" \
-                      "Path of Kairos:\n" \
-                      "\tMonitors the Path of Kairos and screenshots it upon the subreddit changing or the bot failing\n" \
-                      "====================================\n" \
-                      "Sir Lopez's Manual Features (~~$69~~ FREE Premium DLC)\n" \
-                      "``?update``: \n" \
-                      "\tManually checks Path of Kairos and resets the ref. image to what it takes a picture of then\n" \
-                      "``?inbox``:\n" \
-                      "\tChecks the inbox and reports any unread messages.\n" \
-                      "``modmsg <Message to send to mods>``:\n" \
-                      "\tSends the mods of Path of Kairos the message you specify.\n" \
-                      "``?tiny <URLPART>``:\n" \
-                      "\tChecks https://tinyurl.com/URLPART and sees if it is a valid link or not.\n" \
-                      "====================================\n" \
-                      "Sir Lopez's Restricted functions: Won't work for anyone who can't handle the neutron style:\n" \
-                      "``?reboot``:\n" \
-                      "\tReboots Sir Lopez, great for when he's acting rudely.\n" \
-                      "``?sleep <XX>``:\n:" \
-                      "\tPuts Sir Lopez into an absolute slumber for XX minutes (CANNOT BE WOKEN UP AT ALL). " \
-                      "You can't kill a god, but you may make him slumber...\n"
-                channel = message.author.dm_channel
-                await channel.send(msg)
-
-            elif "?reboot" == message.content.lower() and \
-                    (message.author.id == 165688608190103552 or str(message.author.id) in self.list_of_big_boys):
-                exit(-1)
-
-            elif "?sleep" in message.content.lower() and \
-                    (message.author.id == 165688608190103552 or str(message.author.id) in self.list_of_big_boys):
-
-                split_content = message.content.split()
-                if len(split_content) != 2:
-                    return
-                else:
+        # Overly complex function that uses regular requests for speed but defaults to asyncio requests after
+        elif '?tiny' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?tiny':
+                return
+            if len(split_message) > 2:
+                msg = "I'm sorry but it looks like you sent too much. Please use ``?link linkGuess``"
+            else:
+                try:
+                    tiny_url = requests.head("https://tinyurl.com/" + str(split_message[1]))
+                    if tiny_url.ok:
+                        msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
+                    else:
+                        msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
+                                                                         "something for everybody"
+                except:
                     try:
-                        time_to_sleep_in_min = int(split_content[1])
-                        msg = "Going to sleep for " + split_content[1] + " minutes... See you later alligators"
-                        await message.channel.send(msg)
-                        time.sleep(time_to_sleep_in_min * 60)
-                        msg = "I'm back y'all"
-                        await message.channel.send(msg)
+                        async with aiohttp.ClientSession() as session:
+                            async with session.get("https://tinyurl.com/" + str(split_message[1])) as tiny_url:
+                                if tiny_url.real_url:
+                                    msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
+                                else:
+                                    msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
+                                                                                     "something for everybody"
                     except:
-                        return
+                        msg = "Grabbing the url didn't work? Try again and/or ping Yew"
+            await message.channel.send(msg)
+        elif "?help" == message.content.lower():
+            msg = "Help for Sir Lopez 2 The Electric Boogaloo\n" \
+                  "Sir Lopez's Automatic features:\n" \
+                  "Inbox:\n" \
+                  "\tMonitors the bot's inbox and sends the messages it receives\n" \
+                  "Path of Kairos:\n" \
+                  "\tMonitors the Path of Kairos and screenshots it upon the subreddit changing or the bot failing\n" \
+                  "====================================\n" \
+                  "Sir Lopez's Manual Features (~~$69~~ FREE Premium DLC)\n" \
+                  "``?update``: \n" \
+                  "\tManually checks Path of Kairos and resets the ref. image to what it takes a picture of then\n" \
+                  "``?inbox``:\n" \
+                  "\tChecks the inbox and reports any unread messages.\n" \
+                  "``modmsg <Message to send to mods>``:\n" \
+                  "\tSends the mods of Path of Kairos the message you specify.\n" \
+                  "``?tiny <URLPART>``:\n" \
+                  "\tChecks https://tinyurl.com/URLPART and sees if it is a valid link or not.\n" \
+                  "====================================\n" \
+                  "Sir Lopez's Restricted functions: Won't work for anyone who can't handle the neutron style:\n" \
+                  "``?reboot``:\n" \
+                  "\tReboots Sir Lopez, great for when he's acting rudely.\n" \
+                  "``?sleep <XX>``:\n:" \
+                  "\tPuts Sir Lopez into an absolute slumber for XX minutes (CANNOT BE WOKEN UP AT ALL). " \
+                  "You can't kill a god, but you may make him slumber...\n"
+            channel = message.author.dm_channel
+            await channel.send(msg)
+
+        elif "?reboot" == message.content.lower() and \
+                (message.author.id == 165688608190103552 or str(message.author.id) in self.list_of_big_boys):
+            exit(-1)
+
+        elif "?sleep" in message.content.lower() and \
+                (message.author.id == 165688608190103552 or str(message.author.id) in self.list_of_big_boys):
+
+            split_content = message.content.split()
+            if len(split_content) != 2:
+                return
+            else:
+                try:
+                    time_to_sleep_in_min = int(split_content[1])
+                    msg = "Going to sleep for " + split_content[1] + " minutes... See you later alligators"
+                    await message.channel.send(msg)
+                    time.sleep(time_to_sleep_in_min * 60)
+                    msg = "I'm back y'all"
+                    await message.channel.send(msg)
+                except:
+                    return
 
 
 client = MyClient()
