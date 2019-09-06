@@ -159,7 +159,7 @@ class MyClient(discord.Client):
             if msg != "":
                 message = "Message reply received from mods: \n" + msg
                 await channel.send(message)
-            await asyncio.sleep(29)
+            await asyncio.sleep(60)
 
     async def check_subs(self):
         await self.wait_until_ready()
