@@ -76,7 +76,7 @@ atexit.register(pidclose)
 
 class MyClient(discord.Client):
     driver = webdriver.Chrome(options=options)
-    list_of_subs = ["ThePathOfKairos", "Layer", "Layers", "Layer_layers", "Page_pages", "seed_seeds", "digit_digits"]
+    list_of_subs = ["ThePathOfKairos", "Layers", "Layer_layers", "Page_pages", "seed_seeds", "digit_digits"]
     list_of_good_boys = ""
     list_of_bad_boys = ""
     list_of_big_boys = ""
