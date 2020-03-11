@@ -80,7 +80,7 @@ def main():
                 if image_is_different:
                     imgur_image = imgClient.upload_from_path(sub_title + '2.png', config=uploadConfig, anon=False)
                     imgur_link = str(imgur_image['link'])
-                    webhook.send(subreddit['imgur-link'])
+                    # webhook.send(subreddit['imgur-link'])
                     updated_sub = subreddit
                     updated_sub['imgur-link'] = imgur_link
                     del subreddit_dict['SubredditsToGrab'][idx]
