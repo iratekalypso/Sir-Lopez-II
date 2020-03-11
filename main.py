@@ -7,10 +7,6 @@ from discord.ext import tasks
 from discord.ext.commands import Bot
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from PIL import Image
-from functools import reduce
-import math
-import operator
 import discord
 from imgurpython import *
 import json
@@ -21,6 +17,8 @@ import praw
 from praw.models import Message
 import requests
 import time
+import yaml
+import datetime
 import shutil
 
 pid = str(os.getpid())
@@ -80,6 +78,7 @@ class MyClient(discord.Client):
     list_of_good_boys = ""
     list_of_bad_boys = ""
     list_of_big_boys = ""
+    mega_imgur_list = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -87,20 +86,6 @@ class MyClient(discord.Client):
         # create the background task and run it in the background
         self.bg_task = self.loop.create_task(self.check_subs())
         self.bg_task = self.loop.create_task(self.check_inbox())
-
-    def check_images(self, image1, image2):
-        im1 = Image.open(image1)
-        im2 = Image.open(image2)
-        h1 = im1.histogram()
-        h2 = im2.histogram()
-        rms = math.sqrt(reduce(operator.add,
-                               map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-        print(rms)
-        if rms > 0.5:
-            image_is_different = True
-        else:
-            image_is_different = False
-        return image_is_different
 
     def knight_auth(self, user_id):
         if str(user_id) in self.list_of_big_boys or str(user_id) in self.list_of_good_boys:
@@ -163,22 +148,21 @@ class MyClient(discord.Client):
 
     async def check_subs(self):
         await self.wait_until_ready()
-        channel_id = 588704610391293961
+        channel_id = 585303573613510680
         channel = self.get_channel(channel_id)
         while not self.is_closed():
-            t0 = time.time()
-            for subreddit in self.list_of_subs:
-
-                image_is_different = self.check_images(subreddit + '.png', subreddit + '2.png')
-
-                if image_is_different:
-                    imgur_image = imgClient.upload_from_path(subreddit + '2.png', config=uploadConfig, anon=False)
-                    imgur_link = str(imgur_image['link'])
-                    shutil.copyfile(subreddit + '2.png', subreddit + '.png')
-                    msg = "New " + subreddit + " message detected: " + imgur_link
+            # Check for a difference and then send it if there is
+            # Load list of subs
+            with open("subs.yml", 'r') as stream:
+                try:
+                    subreddit_dict = yaml.safe_load(stream)
+                except yaml.YAMLError as exc:
+                    print(exc)
+            for subreddit in subreddit_dict['SubredditsToGrab']:
+                if subreddit['imgur-link'] not in self.mega_imgur_list:
+                    msg = subreddit['name'] + " has updated!\n" + subreddit['imgur-link']
+                    self.mega_imgur_list.append(subreddit['imgur-link'])
                     await channel.send(msg)
-            t1 = time.time()
-            print("Time (s): " + str(t1 - t0))
             await asyncio.sleep(60)
 
     # async def on_disconnect(self):
@@ -189,18 +173,73 @@ class MyClient(discord.Client):
             return
         # TODO: Command system is gross. Use Discord's or make this cleaner.
         if '?update' in message.content.lower():
-            split_message = message.content.split()
-            if split_message[0].lower() != '?update' or not self.knight_auth(message.author.id):
-                return
-            self.knight_auth(message.author)
-            screenshot_url2 = "https://old.reddit.com/r/ThePathOfKairos"
-            driver.get(screenshot_url2)
-            driver.save_screenshot('ThePathOfKairos.png')
-            shutil.copyfile('ThePathOfKairos.png', 'ThePathOfKairos2.png')
-            imgur_image = imgClient.upload_from_path('ThePathOfKairos.png', config=uploadConfig, anon=False)
-            imgur_link = str(imgur_image['link'])
-            msg = "Path of Kairos reset to: " + imgur_link
+            msg = "Whoopsy! This don't work no more!"
             await message.channel.send(msg)
+
+        elif '?subadd' in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?subadd' or not self.knight_auth(message.author.id):
+                return
+            if len(split_message) != 2:
+                msg = "I'm sorry but it looks like you sent too much. Please use ``?subadd sub_title``"
+            else:
+                new_subreddit = {'name': split_message[1], 'date-added': datetime.datetime.today(), 'imgur-link':
+                                 "http://bing.com"}
+                try:
+                    # Grab sub list
+                    with open("subs.yml", 'r') as stream:
+                        try:
+                            subreddit_dict = yaml.safe_load(stream)
+                        except yaml.YAMLError as exc:
+                            print(exc)
+                    # Add new subreddit
+                    subreddit_dict['SubredditsToGrab'].append(new_subreddit)
+                    #W Write sub list
+                    with open("subs.yml", 'w') as stream:
+                        try:
+                            yaml.dump(subreddit_dict, stream)
+                        except yaml.YAMLError as exc:
+                            print(exc)
+                    # Create a base image so the code will trigger once.
+                    shutil.copyfile("BASE_IMG.png", split_message[1] + '.png')
+                    msg = "I've added this to be checked. There should be a new update soon."
+                    await message.channel.send(msg)
+                except Exception as e:
+                    print(e)
+                    msg = "Whoops! Looks like it didn't work. Try again?"
+                    await message.channel.send(msg)
+
+        elif "?subremove" in message.content.lower():
+            split_message = message.content.split()
+            if split_message[0].lower() != '?subremove' or not self.knight_auth(message.author.id):
+                return
+            if len(split_message) != 2:
+                msg = "I'm sorry but it looks like you sent too much. Please use ``?subremove sub_title``"
+            else:
+                try:
+                    # Load the subs list
+                    with open("subs.yml", 'r') as stream:
+                        try:
+                            subreddit_dict = yaml.safe_load(stream)
+                        except yaml.YAMLError as exc:
+                            print(exc)
+                    # Remove the identified sub
+                    for idx, subreddit in enumerate(subreddit_dict['SubredditsToGrab']):
+                        if split_message[1].lower() == subreddit['name']:
+                            del subreddit_dict['SubredditsToGrab'][idx]
+                    # Rewrite the subs list
+                    with open("subs.yml", 'w') as stream:
+                        try:
+                            yaml.dump(subreddit_dict, stream)
+                        except yaml.YAMLError as exc:
+                            print(exc)
+                    msg = "Sub removed. Shouldn't update anymore."
+                    print("Removed sub uwu")
+                    await message.channel.send(msg)
+                except Exception as e:
+                    print(e)
+                    msg = "Whoops I couldn't remove that. Please try again or ping yew."
+                    message.channel.send(msg)
 
         # ModMsg Mostly provided by Satan#0001
         elif '?modmsg' in message.content.lower():
@@ -290,7 +329,7 @@ class MyClient(discord.Client):
                   "``?sleep <XX>``:\n:" \
                   "\tPuts Sir Lopez into an absolute slumber for XX minutes (CANNOT BE WOKEN UP AT ALL). " \
                   "You can't kill a god, but you may make him slumber...\n"
-            channel = message.author.dm_channel
+            channel = message.author
             await channel.send(msg)
 
         elif "?reboot" == message.content.lower() and \
