@@ -68,6 +68,7 @@ def main():
                 print("Saved " + subreddit['name'] + "2.png")
             except Exception as e:
                 print(e)
+                webhook.send('https://i.imgur.com/vmAF9A2.png')
                 exit(-1)
         # Check subs and send new info if different
         try:
@@ -80,9 +81,18 @@ def main():
                     imgur_image = imgClient.upload_from_path(sub_title + '2.png', config=uploadConfig, anon=False)
                     imgur_link = str(imgur_image['link'])
                     webhook.send(subreddit['imgur-link'])
+                    updated_sub = subreddit
+                    updated_sub['imgur-link'] = imgur_link
+                    del subreddit_dict['SubredditsToGrab'][idx]
+                    subreddit_dict['SubredditsToGrab'].append(updated_sub)
                     shutil.copyfile(sub_title + '2.png', sub_title + '.png')
                     msg = "New " + sub_title + " message detected: " + imgur_link
 
+            with open("subs.yml", 'w') as stream:
+                try:
+                    yaml.dump(subreddit_dict, stream)
+                except yaml.YAMLError as exc:
+                    print(exc)
             t1 = time.time()
             print("Time (s): " + str(t1 - t0))
         except Exception as e:
