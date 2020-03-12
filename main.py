@@ -148,7 +148,7 @@ class MyClient(discord.Client):
 
     async def check_subs(self):
         await self.wait_until_ready()
-        channel_id = 585303573613510680
+        channel_id = 687093963362140175
         channel = self.get_channel(channel_id)
         while not self.is_closed():
             # Check for a difference and then send it if there is
