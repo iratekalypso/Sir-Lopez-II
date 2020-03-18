@@ -162,7 +162,8 @@ class MyClient(discord.Client):
                 if subreddit['imgur-link'] not in self.mega_imgur_list:
                     msg = subreddit['name'] + " has updated!\n" + subreddit['imgur-link']
                     self.mega_imgur_list.append(subreddit['imgur-link'])
-                    await channel.send(msg)
+                    if len(self.mega_imgur_list) >= 5:
+                        await channel.send(msg)
             await asyncio.sleep(60)
 
     # async def on_disconnect(self):
