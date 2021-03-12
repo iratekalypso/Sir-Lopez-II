@@ -1,5 +1,3 @@
-# ! /usr/bin/env python3
-
 import asyncio
 import aiohttp
 from discord import Game
@@ -22,18 +20,11 @@ from praw.models import Message
 import requests
 import time
 
-pid = str(os.getpid())
-pidfile = "/tmp/mydaemon.pid"
-
-if os.path.isfile(pidfile):
-    print("%s already exists, exiting" % pidfile)
-    sys.exit()
-open(pidfile, 'w').write(pid)
-
 BOT_PREFIX = ("?", "!")
 client = Bot(command_prefix=BOT_PREFIX)
 with open('tokens.json') as f:
     token_json = json.load(f)
+
 discord_token = token_json['DISCORD_TOKEN']
 imgur_client_id = token_json['IMGUR_CLIENT_ID']
 imgur_client_secret = token_json['IMGUR_CLIENT_SECRET']
@@ -42,13 +33,13 @@ imgur_refresh_token = token_json['IMGUR_REFRESH_TOKEN']
 reddit_client_id = token_json['REDDIT_CLIENT_ID']
 reddit_client_secret = token_json['REDDIT_CLIENT_SECRET']
 reddit_password = token_json['REDDIT_PASSWORD']
-reddit_user_agent = 'python:AprilFoolsMessengerBot:v1.0.1 (by /u/owenisbae)'
-reddit_username = 'owenisbae'
+reddit_user_agent = 'python:Sir Lopez II:v1.0 (by /u/SirLopezII)'
+reddit_username = 'SirLopezII'
 
 options = Options()
 options.add_argument('--headless')
 options.add_argument('--no-sandbox')
-driver = webdriver.Chrome(chrome_options=options)
+driver = webdriver.Chrome(options=options)
 
 imgClient = ImgurClient(imgur_client_id, imgur_client_secret, imgur_access_token, imgur_refresh_token)
 album = 'b6ZIp1m'
@@ -75,7 +66,7 @@ atexit.register(pidclose)
 
 
 class MyClient(discord.Client):
-    driver = webdriver.Chrome(chrome_options=options)
+    driver = webdriver.Chrome(options=options)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
