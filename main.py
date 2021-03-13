@@ -42,8 +42,8 @@ uploadConfig = {
     'title': 'Update Photo',
     'description': 'Grabbed automatically, hopefully this is important'
 }
-april_channel = 748831892312424508
-test_channel = 748831892312424508
+april_channel = 820332198418186241
+test_channel = 820332198418186241
 
 reddit = asyncpraw.Reddit(
   client_id=reddit_client_id,
