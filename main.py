@@ -1,27 +1,20 @@
 import asyncio
-import aiohttp
-from discord import Game
-from discord.ext import tasks
-from discord.ext.commands import Bot
+import discord
+from discord.ext import commands
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from PIL import Image
 from functools import reduce
 import math
 import operator
-import discord
 from imgurpython import *
 import json
 import os
-import sys
 import atexit
-import praw
+import asyncpraw
 from praw.models import Message
-import requests
-import time
 
-BOT_PREFIX = ("?", "!")
-client = Bot(command_prefix=BOT_PREFIX)
+client = commands.Bot(command_prefix="?")
 with open('tokens.json') as f:
     token_json = json.load(f)
 
@@ -52,19 +45,12 @@ uploadConfig = {
 april_channel = 748831892312424508
 test_channel = 748831892312424508
 
-reddit = praw.Reddit(client_id=reddit_client_id,
-                     client_secret=reddit_client_secret,
-                     password=reddit_password,
-                     user_agent=reddit_user_agent,
-                     username=reddit_username)
-
-
-def pidclose():
-    os.unlink(pidfile)
-
-
-atexit.register(pidclose)
-
+reddit = asyncpraw.Reddit(
+  client_id=reddit_client_id,
+  client_secret=reddit_client_secret,
+  password=reddit_password,
+  user_agent=reddit_user_agent,
+  username=reddit_username)
 
 class MyClient(discord.Client):
     driver = webdriver.Chrome(options=options)
@@ -75,118 +61,149 @@ class MyClient(discord.Client):
         # create the background task and run it in the background
         self.bg_task = self.loop.create_task(self.check_snekbait())
         self.bg_task = self.loop.create_task(self.check_kairos())
-        #self.bg_task = self.loop.create_task(self.check_layer())
-        self.bg_task = self.loop.create_task(self.check_inbox())
+        self.bg_task = self.loop.create_task(self.check_scarletborne())
+        self.bg_task = self.loop.create_task(self.check_CHAOSCMD())
 
     async def on_ready(self):
-        print("Ready to record!")
-        channel = self.get_channel(april_channel)
-        message = "Is it getting hot in here? Or is that just Gryph :wink:"
-        await channel.send(message)
-
-    async def check_inbox(self):
-        await self.wait_until_ready()
-        msg_count = 0
-        channel = self.get_channel(test_channel)
-        while not self.is_closed():
-            msg = ""
-            for item in reddit.inbox.unread(limit=None):
-                if isinstance(item, Message):
-                    if str(item.author) == 'None':
-                        author_print = 'Sub mods'
-                    else:
-                        author_print = str(item.author)
-                    msg += ("From: " + author_print + "\nSubject: " + str(item.body) + "\n")
-                    msg_count += 1
-                    # await channel.send(msg)
-                    item.mark_read()
-                    print(msg)
-            if msg != "":
-                message = "Message reply received from mods: \n" + msg
-                await channel.send(message)
-            await asyncio.sleep(29)
+      await client.change_presence(
+        status=discord.Status.online,
+        activity=discord.Streaming(
+            platform='YouTube',
+            name='April Knights',
+            url='https://www.youtube.com/watch?v=7FOETnVmpLM&t=970s'))
+      print("Ready to record!")
+      channel = client.get_channel(april_channel)
+      message = "Is it getting hot in here? ||Or is that just Gryph :wink:||"
+      await channel.send(message)
 
     async def check_kairos(self):
         await self.wait_until_ready()
         channel = self.get_channel(april_channel)
         while not self.is_closed():
-            screenshot_url2 = "https://old.reddit.com/r/ThePathOfKairos"
+            screen_kairos = "https://old.reddit.com/r/ThePathOfKairos"
             try:
-                driver.get(screenshot_url2)
-                driver.save_screenshot('screenshot2.png')
+                driver.get(screen_kairos)
+                driver.save_screenshot('kairos_1.png')
             except:
                 print("Owo what's this?")
                 exit(-1)
 
-                # driver.close()
-            im1 = Image.open('screenshot2.png')
-            im2 = Image.open('screenshot.png')
+            im1 = Image.open('kairos_1.png')
+            im2 = Image.open('kairos_2.png')
             h1 = im1.histogram()
             h2 = im2.histogram()
             rms = math.sqrt(reduce(operator.add,
                                    map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            print(rms)
             if rms > 0.5:
                 image_is_different = True
             else:
                 image_is_different = False
             if image_is_different:
-                # msg = "Check snekbait"
-                imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+                print(rms)
+                imgur_image = imgClient.upload_from_path('kairos_1.png', config=uploadConfig, anon=False)
                 imgur_link = str(imgur_image['link'])
-                driver.save_screenshot('screenshot.png')
-                msg = "New Path of Kairos message detected:" + imgur_link
+                driver.save_screenshot('kairos_2.png')
+                msg = "New __**Path of Kairos**__ change detected:" + imgur_link
                 await channel.send(msg)
-#                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-#                # await channel.send(msg)
-#            # else:
-#            # msg = "For debugging only"
-#             await channel.send(msg)
-
             await asyncio.sleep(60)
 
-
+#check snekbait
     async def check_snekbait(self):
         await self.wait_until_ready()
         channel = self.get_channel(april_channel)
         while not self.is_closed():
-            screenshot_url3 = "https://old.reddit.com/r/snekbait"
+            screen_snekbait = "https://old.reddit.com/r/snekbait"
             try:
-                driver.get(screenshot_url3)
-                driver.save_screenshot('screenshot3.png')
+                driver.get(screen_snekbait)
+                driver.save_screenshot('snekbait_1.png')
             except:
                 print("Owo what's this?")
                 exit(-1)
 
                 driver.close()
-            im1 = Image.open('screenshot3.png')
-            im2 = Image.open('screenshot4.png')
+            im1 = Image.open('snekbait_1.png')
+            im2 = Image.open('snekbait_2.png')
             h1 = im1.histogram()
             h2 = im2.histogram()
             rms = math.sqrt(reduce(operator.add,
                                    map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            print(rms)
             if rms > 0.5:
                 image_is_different = True
             else:
                 image_is_different = False
             if image_is_different:
-#                 msg = "Check snekbait"
-                imgur_image = imgClient.upload_from_path('screenshot3.png', config=uploadConfig, anon=False)
+                print(rms)
+                imgur_image = imgClient.upload_from_path('snekbait_1.png', config=uploadConfig, anon=False)
                 imgur_link = str(imgur_image['link'])
-                driver.save_screenshot('screenshot4.png')
+                driver.save_screenshot('snekbait_2.png')
                 msg = "OwO new snekbait message detected: " + imgur_link
                 await channel.send(msg)
-#                 msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-#                await channel.send(msg)
-#            else:
-#             msg = "For debugging only"
-#             await channel.send(msg)
-
             await asyncio.sleep(60)
-#    async def on_disconnect(self):
-#         driver.close()
-      
+
+#check scarletborne
+    async def check_scarletborne(self):
+        await self.wait_until_ready()
+        channel = self.get_channel(april_channel)
+        while not self.is_closed():
+            screen_scarletborne = "https://old.reddit.com/r/scarletborne"
+            try:
+                driver.get(screen_scarletborne)
+                driver.save_screenshot('scarletborne_1.png')
+            except:
+                print("Owo what's this?")
+                exit(-1)
+
+            im1 = Image.open('scarletborne_1.png')
+            im2 = Image.open('scarletborne_2.png')
+            h1 = im1.histogram()
+            h2 = im2.histogram()
+            rms = math.sqrt(reduce(operator.add,
+                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
+            if rms > 0.5:
+                image_is_different = True
+            else:
+                image_is_different = False
+            if image_is_different:
+                print(rms)
+                imgur_image = imgClient.upload_from_path('scarletborne_1.png', config=uploadConfig, anon=False)
+                imgur_link = str(imgur_image['link'])
+                driver.save_screenshot('scarletborne_2.png')
+                msg = "New scarletborne message detected:" + imgur_link
+                await channel.send(msg)
+            await asyncio.sleep(60)
+
+#check CHAOSCMD
+    async def check_CHAOSCMD(self):
+        await self.wait_until_ready()
+        channel = self.get_channel(april_channel)
+        while not self.is_closed():
+            screen_CHAOSCMD = "https://old.reddit.com/r/CHAOSCMD"
+            try:
+                driver.get(screen_CHAOSCMD)
+                driver.save_screenshot('CHAOSCMD_1.png')
+            except:
+                print("Owo what's this?")
+                exit(-1)
+
+            im1 = Image.open('CHAOSCMD_1.png')
+            im2 = Image.open('CHAOSCMD_2.png')
+            h1 = im1.histogram()
+            h2 = im2.histogram()
+            rms = math.sqrt(reduce(operator.add,
+                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
+            if rms > 0.5:
+                image_is_different = True
+            else:
+                image_is_different = False
+            if image_is_different:
+                print(rms)
+                imgur_image = imgClient.upload_from_path('CHAOSCMD_1.png', config=uploadConfig, anon=False)
+                imgur_link = str(imgur_image['link'])
+                driver.save_screenshot('CHAOSCMD_2.png')
+                msg = "New CHAOSCMD message detected:" + imgur_link
+                await channel.send(msg)
+            await asyncio.sleep(60)
+
     async def on_message(self, message):
         if message.author == client.user:
             return
@@ -201,115 +218,7 @@ class MyClient(discord.Client):
             imgur_link = str(imgur_image['link'])
             msg = "Path of Kairos reset to: " + imgur_link
             await message.channel.send(msg)
-        # ModMsg Mostly provided by Satan#0001
-        elif '?modmsg' in message.content.lower():
-            split_message = message.content.split()
-            if split_message[0].lower() != '?modmsg':
-                return
-            if len(split_message) > 1:
-                solution = " ".join(split_message[1:])
-                if "spam" in solution.lower():
-                    await message.channel.send("The word 'spam' is blocked due to "
-                                               "Reddit's auto help system picking it up. Sorry :(")
-                else:
-                    try:
-                        reddit.subreddit('ghostisedoesnotsuck').message(solution, solution)
-                        await message.channel.send("Solution sent!")
-                    except:
-                        await message.channel.send("Owo looks like yew made a fucky wucky. A weal FUCKO BOINGO")
-            else:
-                await message.channel.send("No message provided, I'm not sending blank lines....")
-
-        elif '?inbox' in message.content.lower():
-            split_message = message.content.split()
-            if split_message[0].lower() != '?inbox':
-                return
-            msg_count = 0
-            for item in reddit.inbox.unread(limit=None):
-                if isinstance(item, Message):
-                    if str(item.author) == 'None':
-                        author_print = 'Sub mods'
-                    else:
-                        author_print = str(item.author)
-                    msg = ("From: " + author_print + "\nSubject: " + str(item.body) + "\n")
-                    msg_count += 1
-                    await message.channel.send(msg)
-                    item.mark_read()
-            if msg_count == 0:
-                msg = "Sorry, inbox is empty..."
-                await message.channel.send(msg)
-        # Overly complex function that uses regular requests for speed but defaults to asyncio requests when that fails
-        elif '?tiny' in message.content.lower():
-            split_message = message.content.split()
-            if split_message[0].lower() != '?tiny':
-                return
-            if len(split_message) > 2:
-                msg = "I'm sorry but it looks like you sent too much. Please use ``?link linkGuess``"
-            else:
-                try:
-                    tiny_url = requests.head("https://tinyurl.com/"+str(split_message[1]))
-                    if tiny_url.ok:
-                        msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
-                    else:
-                        msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
-                                                                         "something for everybody"
-                except:
-                    try:
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get("https://tinyurl.com/"+str(split_message[1])) as tiny_url:
-                                if tiny_url.real_url:
-                                    msg = "Looks like " + str(tiny_url.url) + " is a valid link. Czech it out!"
-                                else:
-                                    msg = "Doesn't look like " + str(tiny_url.url) + " is legit. 9/10 a little " \
-                                                                              "something for everybody"
-                    except:
-                        msg = "Grabbing the url didn't work? Try again and/or ping Yew"
-            await message.channel.send(msg)
-        elif "?help" == message.content.lower():
-            msg = "Help for Sir Lopez 2 The Electric Boogaloo\n" \
-                  "Sir Lopez's Automatic features:\n" \
-                  "Inbox:\n" \
-                  "\tMonitors the bot's inbox and sends the messages it receives\n" \
-                  "Path of Kairos:\n" \
-                  "\tMonitors the Path of Kairos and screenshots it upon the subreddit changing or the bot failing\n" \
-                  "====================================\n" \
-                  "Sir Lopez's Manual Features (~~$69~~ FREE Premium DLC)\n" \
-                  "``?update``: \n" \
-                  "\tManually checks Path of Kairos and resets the ref. image to what it takes a picture of then\n" \
-                  "``?inbox``:\n" \
-                  "\tChecks the inbox and reports any unread messages.\n" \
-                  "``modmsg <Message to send to mods>``:\n" \
-                  "\tSends the mods of Path of Kairos the message you specify.\n" \
-                  "``?tiny <URLPART>``:\n" \
-                  "\tChecks https://tinyurl.com/URLPART and sees if it is a valid link or not.\n" \
-                  "====================================\n" \
-                  "Sir Lopez's Restricted functions: Won't work for anyone who can't handle the neutron style:\n" \
-                  "``?reboot``:\n" \
-                  "\tReboots Sir Lopez, great for when he's acting rudely.\n" \
-                  "``?sleep <XX>``:\n:" \
-                  "\tPuts Sir Lopez into an absolute slumber for XX minutes (CANNOT BE WOKEN UP AT ALL). " \
-                  "You can't kill a god, but you may make him slumber...\n"
-            channel = message.author.dm_channel
-            await channel.send(msg)
-        elif "?reboot" == message.content.lower() and \
-                (message.author.id == 165688608190103552 or message.channel.id == 430464509006577668):
-            exit(-1)
-        elif "?sleep" in message.content.lower() and \
-                (message.author.id == 165688608190103552 or message.channel.id == 430464509006577668):
-            split_content = message.content.split()
-            if len(split_content) != 2:
-                return
-            else:
-                try:
-                    time_to_sleep_in_min = int(split_content[1])
-                    msg = "Going to sleep for " + split_content[1] + " minutes... See you later alligators"
-                    await message.channel.send(msg)
-                    time.sleep(time_to_sleep_in_min*60)
-                    msg = "I'm back y'all"
-                    message.channel.send(msg)
-                except:
-                    return
-
+            return
 
 client = MyClient()
 client.run(discord_token)
