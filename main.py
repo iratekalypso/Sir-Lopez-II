@@ -42,14 +42,15 @@ options.add_argument('--no-sandbox')
 driver = webdriver.Chrome(options=options)
 
 imgClient = ImgurClient(imgur_client_id, imgur_client_secret, imgur_access_token, imgur_refresh_token)
-album = 'b6ZIp1m'
+album = 'zUSjPD7'
 uploadConfig = {
     'album': album,
     'name': 'Updated Summer fools pic',
     'title': 'Update Photo',
     'description': 'Grabbed automatically, hopefully this is important'
 }
-
+april_channel = 748831892312424508
+test_channel = 748831892312424508
 
 reddit = praw.Reddit(client_id=reddit_client_id,
                      client_secret=reddit_client_secret,
@@ -72,23 +73,21 @@ class MyClient(discord.Client):
         super().__init__(*args, **kwargs)
 
         # create the background task and run it in the background
-        # self.bg_task = self.loop.create_task(self.check_snekbait())
+        self.bg_task = self.loop.create_task(self.check_snekbait())
         self.bg_task = self.loop.create_task(self.check_kairos())
-        self.bg_task = self.loop.create_task(self.check_layer())
+        #self.bg_task = self.loop.create_task(self.check_layer())
         self.bg_task = self.loop.create_task(self.check_inbox())
 
     async def on_ready(self):
         print("Ready to record!")
-        channel_id = 585303573613510680
-        channel = self.get_channel(channel_id)
+        channel = self.get_channel(april_channel)
         message = "Is it getting hot in here? Or is that just Gryph :wink:"
         await channel.send(message)
 
     async def check_inbox(self):
         await self.wait_until_ready()
         msg_count = 0
-        channel_id = 588704610391293961
-        channel = self.get_channel(channel_id)
+        channel = self.get_channel(test_channel)
         while not self.is_closed():
             msg = ""
             for item in reddit.inbox.unread(limit=None):
@@ -109,8 +108,7 @@ class MyClient(discord.Client):
 
     async def check_kairos(self):
         await self.wait_until_ready()
-        channel_id = 588704610391293961
-        channel = self.get_channel(channel_id)
+        channel = self.get_channel(april_channel)
         while not self.is_closed():
             screenshot_url2 = "https://old.reddit.com/r/ThePathOfKairos"
             try:
@@ -139,20 +137,20 @@ class MyClient(discord.Client):
                 driver.save_screenshot('screenshot.png')
                 msg = "New Path of Kairos message detected:" + imgur_link
                 await channel.send(msg)
-                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-                # await channel.send(msg)
-            # else:
-            # msg = "For debugging only"
-            # await channel.send(msg)
+#                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
+#                # await channel.send(msg)
+#            # else:
+#            # msg = "For debugging only"
+#             await channel.send(msg)
 
             await asyncio.sleep(60)
 
-    async def check_layer(self):
+
+    async def check_snekbait(self):
         await self.wait_until_ready()
-        channel_id = 585303573613510680
-        channel = self.get_channel(channel_id)
+        channel = self.get_channel(april_channel)
         while not self.is_closed():
-            screenshot_url3 = "https://old.reddit.com/r/layer"
+            screenshot_url3 = "https://old.reddit.com/r/snekbait"
             try:
                 driver.get(screenshot_url3)
                 driver.save_screenshot('screenshot3.png')
@@ -160,7 +158,7 @@ class MyClient(discord.Client):
                 print("Owo what's this?")
                 exit(-1)
 
-                # driver.close()
+                driver.close()
             im1 = Image.open('screenshot3.png')
             im2 = Image.open('screenshot4.png')
             h1 = im1.histogram()
@@ -173,22 +171,22 @@ class MyClient(discord.Client):
             else:
                 image_is_different = False
             if image_is_different:
-                # msg = "Check snekbait"
+#                 msg = "Check snekbait"
                 imgur_image = imgClient.upload_from_path('screenshot3.png', config=uploadConfig, anon=False)
                 imgur_link = str(imgur_image['link'])
                 driver.save_screenshot('screenshot4.png')
-                msg = "OwO new Layer message detected: " + imgur_link
+                msg = "OwO new snekbait message detected: " + imgur_link
                 await channel.send(msg)
-                # msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
-                # await channel.send(msg)
-            # else:
-            # msg = "For debugging only"
-            # await channel.send(msg)
+#                 msg = "<@165688608190103552> and <@332245843983990786> and <@126011690419617792>"
+#                await channel.send(msg)
+#            else:
+#             msg = "For debugging only"
+#             await channel.send(msg)
 
             await asyncio.sleep(60)
-    # async def on_disconnect(self):
-    #     driver.close()
-
+#    async def on_disconnect(self):
+#         driver.close()
+      
     async def on_message(self, message):
         if message.author == client.user:
             return
@@ -315,6 +313,3 @@ class MyClient(discord.Client):
 
 client = MyClient()
 client.run(discord_token)
-
-
-
