@@ -72,9 +72,9 @@ class MyClient(discord.Client):
             name='April Knights',
             url='https://www.youtube.com/watch?v=7FOETnVmpLM&t=970s'))
       print("Ready to record!")
-      channel = client.get_channel(april_channel)
-      message = "Is it getting hot in here? ||Or is that just Gryph :wink:||"
-      await channel.send(message)
+      #channel = client.get_channel(april_channel)
+      #message = "Is it getting hot in here? ||Or is that just Gryph :wink:||"
+      #await channel.send(message)
 
     async def check_kairos(self):
         await self.wait_until_ready()
@@ -83,6 +83,7 @@ class MyClient(discord.Client):
             screen_kairos = "https://old.reddit.com/r/ThePathOfKairos"
             try:
                 driver.get(screen_kairos)
+                driver.execute_script("window.scrollBy(0,30)","")
                 driver.save_screenshot('kairos_1.png')
             except:
                 print("Owo what's this?")
@@ -105,7 +106,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('kairos_2.png')
                 msg = "New __**Path of Kairos**__ change detected:" + imgur_link
                 await channel.send(msg)
-            await asyncio.sleep(60)
+            await asyncio.sleep(20)
 
 #check snekbait
     async def check_snekbait(self):
@@ -115,6 +116,7 @@ class MyClient(discord.Client):
             screen_snekbait = "https://old.reddit.com/r/snekbait"
             try:
                 driver.get(screen_snekbait)
+                driver.execute_script("window.scrollBy(0,30)","")
                 driver.save_screenshot('snekbait_1.png')
             except:
                 print("Owo what's this?")
@@ -138,7 +140,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('snekbait_2.png')
                 msg = "OwO new snekbait message detected: " + imgur_link
                 await channel.send(msg)
-            await asyncio.sleep(60)
+            await asyncio.sleep(20)
 
 #check scarletborne
     async def check_scarletborne(self):
@@ -148,6 +150,7 @@ class MyClient(discord.Client):
             screen_scarletborne = "https://old.reddit.com/r/scarletborne"
             try:
                 driver.get(screen_scarletborne)
+                driver.execute_script("window.scrollBy(0,30)","")
                 driver.save_screenshot('scarletborne_1.png')
             except:
                 print("Owo what's this?")
@@ -170,7 +173,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('scarletborne_2.png')
                 msg = "New scarletborne message detected:" + imgur_link
                 await channel.send(msg)
-            await asyncio.sleep(60)
+            await asyncio.sleep(20)
 
 #check CHAOSCMD
     async def check_CHAOSCMD(self):
@@ -180,6 +183,7 @@ class MyClient(discord.Client):
             screen_CHAOSCMD = "https://old.reddit.com/r/CHAOSCMD"
             try:
                 driver.get(screen_CHAOSCMD)
+                driver.execute_script("window.scrollBy(0,30)","")
                 driver.save_screenshot('CHAOSCMD_1.png')
             except:
                 print("Owo what's this?")
@@ -202,7 +206,7 @@ class MyClient(discord.Client):
                 driver.save_screenshot('CHAOSCMD_2.png')
                 msg = "New CHAOSCMD message detected:" + imgur_link
                 await channel.send(msg)
-            await asyncio.sleep(60)
+            await asyncio.sleep(20)
 
     async def on_message(self, message):
         if message.author == client.user:
@@ -213,6 +217,7 @@ class MyClient(discord.Client):
                 return
             screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
             driver.get(screenshot_url2)
+            driver.execute_script("window.scrollBy(0,30)","")
             driver.save_screenshot('screenshot.png')
             imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
             imgur_link = str(imgur_image['link'])
