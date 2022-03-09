@@ -34,7 +34,8 @@ options.add_argument('--headless')
 options.add_argument('--no-sandbox')
 driver = webdriver.Chrome(options=options)
 
-imgClient = ImgurClient(imgur_client_id, imgur_client_secret, imgur_access_token, imgur_refresh_token)
+imgClient = ImgurClient(imgur_client_id, imgur_client_secret,
+                        imgur_access_token, imgur_refresh_token)
 album = 'zUSjPD7'
 uploadConfig = {
     'album': album,
@@ -42,15 +43,15 @@ uploadConfig = {
     'title': 'Update Photo',
     'description': 'Grabbed automatically, hopefully this is important'
 }
-april_channel = 820332198418186241
-test_channel = 820332198418186241
+april_channel = 950560400661938197
+test_channel = 748831892312424508
 
-reddit = asyncpraw.Reddit(
-  client_id=reddit_client_id,
-  client_secret=reddit_client_secret,
-  password=reddit_password,
-  user_agent=reddit_user_agent,
-  username=reddit_username)
+reddit = asyncpraw.Reddit(client_id=reddit_client_id,
+                          client_secret=reddit_client_secret,
+                          password=reddit_password,
+                          user_agent=reddit_user_agent,
+                          username=reddit_username)
+
 
 class MyClient(discord.Client):
     driver = webdriver.Chrome(options=options)
@@ -59,22 +60,21 @@ class MyClient(discord.Client):
         super().__init__(*args, **kwargs)
 
         # create the background task and run it in the background
-        self.bg_task = self.loop.create_task(self.check_snekbait())
         self.bg_task = self.loop.create_task(self.check_kairos())
-        self.bg_task = self.loop.create_task(self.check_scarletborne())
-        self.bg_task = self.loop.create_task(self.check_CHAOSCMD())
 
     async def on_ready(self):
-      await client.change_presence(
-        status=discord.Status.online,
-        activity=discord.Streaming(
-            platform='YouTube',
-            name='April Knights',
-            url='https://www.youtube.com/watch?v=7FOETnVmpLM&t=970s'))
-      print("Ready to record!")
-      #channel = client.get_channel(april_channel)
-      #message = "Is it getting hot in here? ||Or is that just Gryph :wink:||"
-      #await channel.send(message)
+        await client.change_presence(
+            status=discord.Status.online,
+            activity=discord.Streaming(
+                platform='YouTube',
+                name='April Knights',
+                url='https://www.youtube.com/watch?v=7FOETnVmpLM&t=970s'))
+        print("Ready to record!")
+        channel = client.get_channel(april_channel)
+        message = "Is it getting hot in here? ||Or is that just Gryph :wink:||"
+        await channel.send(message)
+
+#check Kairos
 
     async def check_kairos(self):
         await self.wait_until_ready()
@@ -83,7 +83,7 @@ class MyClient(discord.Client):
             screen_kairos = "https://old.reddit.com/r/ThePathOfKairos"
             try:
                 driver.get(screen_kairos)
-                driver.execute_script("window.scrollBy(0,30)","")
+                driver.execute_script("window.scrollTo(0,30)", "")
                 driver.save_screenshot('kairos_1.png')
             except:
                 print("Owo what's this?")
@@ -93,118 +93,21 @@ class MyClient(discord.Client):
             im2 = Image.open('kairos_2.png')
             h1 = im1.histogram()
             h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
+            rms = math.sqrt(
+                reduce(operator.add, map(lambda a, b:
+                                         (a - b)**2, h1, h2)) / len(h1))
             if rms > 0.5:
                 image_is_different = True
             else:
                 image_is_different = False
             if image_is_different:
                 print(rms)
-                imgur_image = imgClient.upload_from_path('kairos_1.png', config=uploadConfig, anon=False)
+                imgur_image = imgClient.upload_from_path('kairos_1.png',
+                                                         config=uploadConfig,
+                                                         anon=False)
                 imgur_link = str(imgur_image['link'])
                 driver.save_screenshot('kairos_2.png')
-                msg = "New __**Path of Kairos**__ change detected:" + imgur_link
-                await channel.send(msg)
-            await asyncio.sleep(20)
-
-#check snekbait
-    async def check_snekbait(self):
-        await self.wait_until_ready()
-        channel = self.get_channel(april_channel)
-        while not self.is_closed():
-            screen_snekbait = "https://old.reddit.com/r/snekbait"
-            try:
-                driver.get(screen_snekbait)
-                driver.execute_script("window.scrollBy(0,30)","")
-                driver.save_screenshot('snekbait_1.png')
-            except:
-                print("Owo what's this?")
-                exit(-1)
-
-                driver.close()
-            im1 = Image.open('snekbait_1.png')
-            im2 = Image.open('snekbait_2.png')
-            h1 = im1.histogram()
-            h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            if rms > 0.5:
-                image_is_different = True
-            else:
-                image_is_different = False
-            if image_is_different:
-                print(rms)
-                imgur_image = imgClient.upload_from_path('snekbait_1.png', config=uploadConfig, anon=False)
-                imgur_link = str(imgur_image['link'])
-                driver.save_screenshot('snekbait_2.png')
-                msg = "OwO new snekbait message detected: " + imgur_link
-                await channel.send(msg)
-            await asyncio.sleep(20)
-
-#check scarletborne
-    async def check_scarletborne(self):
-        await self.wait_until_ready()
-        channel = self.get_channel(april_channel)
-        while not self.is_closed():
-            screen_scarletborne = "https://old.reddit.com/r/scarletborne"
-            try:
-                driver.get(screen_scarletborne)
-                driver.execute_script("window.scrollBy(0,30)","")
-                driver.save_screenshot('scarletborne_1.png')
-            except:
-                print("Owo what's this?")
-                exit(-1)
-
-            im1 = Image.open('scarletborne_1.png')
-            im2 = Image.open('scarletborne_2.png')
-            h1 = im1.histogram()
-            h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            if rms > 0.5:
-                image_is_different = True
-            else:
-                image_is_different = False
-            if image_is_different:
-                print(rms)
-                imgur_image = imgClient.upload_from_path('scarletborne_1.png', config=uploadConfig, anon=False)
-                imgur_link = str(imgur_image['link'])
-                driver.save_screenshot('scarletborne_2.png')
-                msg = "New scarletborne message detected:" + imgur_link
-                await channel.send(msg)
-            await asyncio.sleep(20)
-
-#check CHAOSCMD
-    async def check_CHAOSCMD(self):
-        await self.wait_until_ready()
-        channel = self.get_channel(april_channel)
-        while not self.is_closed():
-            screen_CHAOSCMD = "https://old.reddit.com/r/CHAOSCMD"
-            try:
-                driver.get(screen_CHAOSCMD)
-                driver.execute_script("window.scrollBy(0,30)","")
-                driver.save_screenshot('CHAOSCMD_1.png')
-            except:
-                print("Owo what's this?")
-                exit(-1)
-
-            im1 = Image.open('CHAOSCMD_1.png')
-            im2 = Image.open('CHAOSCMD_2.png')
-            h1 = im1.histogram()
-            h2 = im2.histogram()
-            rms = math.sqrt(reduce(operator.add,
-                                   map(lambda a, b: (a - b) ** 2, h1, h2)) / len(h1))
-            if rms > 0.5:
-                image_is_different = True
-            else:
-                image_is_different = False
-            if image_is_different:
-                print(rms)
-                imgur_image = imgClient.upload_from_path('CHAOSCMD_1.png', config=uploadConfig, anon=False)
-                imgur_link = str(imgur_image['link'])
-                driver.save_screenshot('CHAOSCMD_2.png')
-                msg = "New CHAOSCMD message detected:" + imgur_link
+                msg = "New __**Path of Kairos**__ change detected: " + imgur_link
                 await channel.send(msg)
             await asyncio.sleep(20)
 
@@ -217,9 +120,11 @@ class MyClient(discord.Client):
                 return
             screenshot_url2 = "https://www.reddit.com/r/ThePathOfKairos"
             driver.get(screenshot_url2)
-            driver.execute_script("window.scrollBy(0,30)","")
+            driver.execute_script("window.scrollTo(0,30)", "")
             driver.save_screenshot('screenshot.png')
-            imgur_image = imgClient.upload_from_path('screenshot2.png', config=uploadConfig, anon=False)
+            imgur_image = imgClient.upload_from_path('screenshot2.png',
+                                                     config=uploadConfig,
+                                                     anon=False)
             imgur_link = str(imgur_image['link'])
             msg = "Path of Kairos reset to: " + imgur_link
             await message.channel.send(msg)
